@@ -15,4 +15,11 @@ Point-to-site VPN can use one of the following protocols:
 - The validation of the client certificate is performed by the VPN gateway and happens during establishment of the P2S VPN connection. The root certificate is required for the validation and must be uploaded to Azure.
 # Azure Active Directory authentication
 - Azure AD authentication allows users to connect to Azure using their Azure Active Directory credentials. Native Azure AD authentication is only supported for OpenVPN protocol and also requires the use of the Azure VPN Client. The supported client operation systems are Windows 10 or later and macOS. With native Azure AD authentication, we can use Azure AD's conditional access and Multi-Factor Authentication (MFA) features for VPN.
+# What are the client configuration requirements?
+- The client configuration requirements vary, based on the VPN client that you use, the authentication type, and the protocol.
+![image](https://github.com/Nessa13044/Configure-Point-to-Site-P2S-VPN-/assets/114730329/8f06e9e4-1d17-4253-959a-243699f682d0)
+
+
+
+
 

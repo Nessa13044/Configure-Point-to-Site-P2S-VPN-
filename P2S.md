@@ -11,8 +11,13 @@ Point-to-site VPN can use one of the following protocols:
 - Before Azure accepts a P2S VPN connection, the user has to be authenticated first. There are two mechanisms that Azure offers to authenticate a connecting user.
 # Certificate authentication
 - When using the native Azure certificate authentication, a client certificate that is present on the device is used to authenticate the connecting user. Client certificates are generated from a trusted root certificate and then installed on each client computer. we can use a root certificate that was generated using an Enterprise solution, or you can generate a self-signed certificate.
-
 - The validation of the client certificate is performed by the VPN gateway and happens during establishment of the P2S VPN connection. The root certificate is required for the validation and must be uploaded to Azure.
+- P2S Azure certificate authentication connections use the following items, which you'll configure in this exercise:
++ A RouteBased VPN gateway.
+The public key (.cer file) for a root certificate, which is uploaded to Azure. Once the certificate is uploaded, it's considered a trusted certificate and is used for authentication.
++ A client certificate that is generated from the root certificate. The client certificate installed on each client computer that will connect to the VNet. This certificate is used for client authentication.
++ VPN client configuration files. The VPN client is configured using VPN client configuration files. These files contain the necessary information for the client to connect to the VNet. Each client that connects must be configured using the settings in the configuration files.
+
 # Azure Active Directory authentication
 - Azure AD authentication allows users to connect to Azure using their Azure Active Directory credentials. Native Azure AD authentication is only supported for OpenVPN protocol and also requires the use of the Azure VPN Client. The supported client operation systems are Windows 10 or later and macOS. With native Azure AD authentication, we can use Azure AD's conditional access and Multi-Factor Authentication (MFA) features for VPN.
 # What are the client configuration requirements?

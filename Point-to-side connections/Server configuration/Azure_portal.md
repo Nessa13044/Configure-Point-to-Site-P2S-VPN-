@@ -53,6 +53,99 @@ Use the New-SelfSignedCertificate cmdlet to create a self-signed root certificat
 automatically installed in 'Certificates-Current User\Personal\Certificates'.
 ![image](https://github.com/Nessa13044/Configure-Point-to-Site-P2S-VPN-/assets/114730329/51e94c12-5340-4ba4-a04c-12672a7bdae4)
 
+# Generate client certificates
+- Each client computer that you connect to a VNet with a point-to-site connection must have a client certificate installed. You generate it from the root certificate and install it on each client computer. If you don't install a valid client certificate, authentication will fail when the client tries to connect to the VNet.
+- You can either generate a unique certificate for each client, or you can use the same certificate for multiple clients. The advantage to generating unique client certificates is the ability to revoke a single certificate. Otherwise, if multiple clients use the same client certificate to authenticate and you revoke it, you'll need to generate and install new certificates for every client that uses that certificate.
+- When you generate a client certificate from a self-signed root certificate, it's automatically installed on the computer that you used to generate it. If you want to install a client certificate on another client computer, export it as a .pfx file, along with the entire certificate chain. Doing so will create a .pfx file that contains the root certificate information required for the client to authenticate.
+# PowerShell console session still open on step (1)
+- This session continues from the previous section and uses the declared '$cert' variable.
+- the result is a client certificate named 'P2SChildCert'. If you want to name the child certificate something else, modify the CN value.
+
+![image](https://github.com/Nessa13044/Configure-Point-to-Site-P2S-VPN-/assets/114730329/1bcd14e9-fcd7-423a-87ab-7a7d70c7a499)
+![image](https://github.com/Nessa13044/Configure-Point-to-Site-P2S-VPN-/assets/114730329/b25aac49-75a8-4f67-bb85-15e79dc82921)
+
+# Export the root certificate public key (.cer)
+- After create a self-signed root certificate, export the root certificate .cer file (not the private key). You'll later upload the necessary certificate data contained in the file to Azure. The following steps help you export the .cer file for your self-signed root certificate and retrieve the necessary certificate data.
+1. To get the certificate .cer file, open Manage user certificates.
+   Locate the self-signed root certificate, typically in "Certificates - Current User\Personal\Certificates", and right-click. Click All Tasks -> Export. This opens the Certificate Export Wizard.
+   
+![image](https://github.com/Nessa13044/Configure-Point-to-Site-P2S-VPN-/assets/114730329/58e5a0cd-6266-41e1-bab7-c87dbe231e1e)
+
+2. In the wizard, click Next.
+3. Select No, do not export the private key, and then click Next.
+
+![image](https://github.com/Nessa13044/Configure-Point-to-Site-P2S-VPN-/assets/114730329/d2220808-d568-489c-962a-142a534563d2)
+
+4. On the Export File Format page, select Base-64 encoded X.509 (.CER)., and then click Next.
+
+![image](https://github.com/Nessa13044/Configure-Point-to-Site-P2S-VPN-/assets/114730329/87fc92e8-8227-4377-8c55-ef3127d169a8)
+
+5. For File to Export, Browse to the location to which you want to export the certificate. For File name, name the certificate file. Then, click Next.
+6. Go to the location where exported the certificate and open it using a text editor, such as Notepad. If you exported the certificate in the required Base-64 encoded X.509 (.CER) format, you'll see text similar to the following example. The section highlighted in blue contains the information that you copy and upload to Azure.
+
+![image](https://github.com/Nessa13044/Configure-Point-to-Site-P2S-VPN-/assets/114730329/8415096c-bf80-4730-9015-c1b80bbad5a2)
+
+# Export the client certificate
+- When you generate a client certificate, it's automatically installed on the computer that you used to generate it. If you want to install the client certificate on another client computer, you need to first export the client certificate.
+1. To export a client certificate, open Manage user certificates. The client certificates that you generated are, by default, located in 'Certificates - Current User\Personal\Certificates'. Right-click the client certificate that you want to export, click all tasks, and then click Export to open the Certificate Export Wizard.
+
+![image](https://github.com/Nessa13044/Configure-Point-to-Site-P2S-VPN-/assets/114730329/45fb600e-ca2e-4e1e-8365-e082401a56a5)
+
+2. In the Certificate Export Wizard, click Next to continue.
+3. Select Yes, export the private key, and then click Next.
+
+![image](https://github.com/Nessa13044/Configure-Point-to-Site-P2S-VPN-/assets/114730329/3ba4a460-8f8c-4b33-84af-ce1523081b18)
+
+4. On the Export File Format page, leave the defaults selected. Make sure that Include all certificates in the certification path if possible is selected. This setting additionally exports the root certificate information that is required for successful client authentication. Without it, client authentication fails because the client doesn't have the trusted root certificate. Then, click Next.
+
+![image](https://github.com/Nessa13044/Configure-Point-to-Site-P2S-VPN-/assets/114730329/34ea7845-4241-4873-93ab-b4a27b82e47c)
+
+5. On the Security page, you must protect the private key. If you select to use a password, make sure to record or remember the password that you set for this certificate. Then, click Next.
+
+![image](https://github.com/Nessa13044/Configure-Point-to-Site-P2S-VPN-/assets/114730329/44b14d96-8b14-448e-bbb3-639fbafe3a34)
+
+6. Click Finish to export the certificate.
+
+# Add the address pool
+1. Go to the gateway you created in the previous section.
+2. In the left pane, select Point-to-site configuration.
+3. Click Configure now to open the configuration page.
+- The client address pool is a range of private IP addresses that you specify. The clients that connect over a point-to-site VPN dynamically receive an IP address from this range. Use a private IP address range that doesn't overlap with the on-premises location that you connect from, or the VNet that you want to connect to. If you configure multiple protocols and SSTP is one of the protocols, then the configured address pool is split between the configured protocols equally.
+
+![image](https://github.com/Nessa13044/Configure-Point-to-Site-P2S-VPN-/assets/114730329/a343b659-c8a2-40ec-b0b2-a2cab127b89d)
+
+# Authentication type
+- select Azure certificate for the authentication type.
+
+# Upload root certificate public key information
+- you upload public root certificate that you create on privious session. Once the public certificate data is uploaded, Azure can use it to authenticate clients that have installed a client certificate generated from the trusted root certificate.
+
+![image](https://github.com/Nessa13044/Configure-Point-to-Site-P2S-VPN-/assets/114730329/4f760480-7341-4fdb-b21b-ae0228e85d05)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       
  
